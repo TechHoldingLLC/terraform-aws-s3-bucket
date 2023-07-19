@@ -49,3 +49,7 @@ No modules.
 | <a name="output_bucket_regional_domain_name"></a> [bucket\_regional\_domain\_name](#output\_bucket\_regional\_domain\_name) | n/a |
 | <a name="output_bucket_website_endpoint"></a> [bucket\_website\_endpoint](#output\_bucket\_website\_endpoint) | n/a |
 | <a name="output_cloudfront_access_identity_path"></a> [cloudfront\_access\_identity\_path](#output\_cloudfront\_access\_identity\_path) | n/a |
+
+## License
+
+Apache 2 Licensed. See [LICENSE](https://github.com/TechHoldingLLC/terraform-aws-s3-bucket/blob/main/LICENSE) for full details.
