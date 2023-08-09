@@ -34,10 +34,10 @@ module "s3" {
 module "s3" {
   source                   = "./s3"
   name                     = "my-bucket-unique-name"
+  bucket_public_read_access = true
   website = {
     index_document = "index.html"
     error_document = "error.html"
-    bucket_public_read_access = true
     # below argument can help to allow bucket objects to accessible publically with specific condition
     # https://docs.aws.amazon.com/AmazonS3/latest/userguide/amazon-s3-policy-keys.html
     # bucket_public_read_access_condition = {

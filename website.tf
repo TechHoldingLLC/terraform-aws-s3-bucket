@@ -56,7 +56,7 @@ data "aws_iam_policy_document" "allow_public_read_access_to_objects" {
     ]
 
     dynamic "condition" {
-      for_each = try([var.bucket_public_read_access_condition], [])
+      for_each = try([var.website["bucket_public_read_access_condition"]], [])
       content {
         test     = condition.value.operator
         variable = condition.value.condition_key
