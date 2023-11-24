@@ -19,7 +19,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "encryption" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm = var.encryption_algorithm
+      kms_master_key_id = var.encryption_algorithm == "AES256" ? null : var.kms_master_key_id
     }
   }
 }
@@ -36,7 +37,7 @@ resource "aws_s3_bucket_versioning" "versioning" {
 ## Bucket Ownership
 # To enable ACL, the object ownership should be set as BucketOwnerPreferred
 resource "aws_s3_bucket_ownership_controls" "bucket_ownership" {
-  count = var.bucket_public_read_access ? 1 : 0
+  count  = var.bucket_public_read_access ? 1 : 0
   bucket = aws_s3_bucket.s3.id
   rule {
     object_ownership = "BucketOwnerPreferred"

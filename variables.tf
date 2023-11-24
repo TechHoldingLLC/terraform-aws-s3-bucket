@@ -21,8 +21,14 @@ variable "force_destroy" {
   default     = false
 }
 
-variable "cloudfront_access_policy" {
-  description = "Configure cloudfront access policy"
+variable "origin_access_identity" {
+  description = "Configure cloudfront origin access identity"
+  default     = false
+  type        = bool
+}
+
+variable "origin_access_control" {
+  description = "Configure cloudfront origin access control"
   default     = false
   type        = bool
 }
@@ -37,4 +43,22 @@ variable "website" {
   description = "Configure bucket to host static website"
   type        = any
   default     = {}
+}
+
+variable "cloudfront_arn" {
+  description = "CloudFront ARN"
+  type        = string
+  default     = ""
+}
+
+variable "encryption_algorithm" {
+  description = "Algorithm used for SSE in s3"
+  type        = string
+  default     = "AES256"
+}
+
+variable "kms_master_key_id" {
+  description = "KMS master key ID used for the SSE-KMS encryption"
+  type        = string
+  default     = null
 }
