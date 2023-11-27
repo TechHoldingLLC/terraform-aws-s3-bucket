@@ -20,12 +20,21 @@ module "s3" {
 }
 ```
 
-## Bucket as a Cloudfront origin
+## Bucket as a Cloudfront origin with Origin access identity
 ```
 module "s3" {
   source                   = "./s3"
   name                     = "my-bucket-unique-name"
-  cloudfront_access_policy = true
+  origin_access_identity   = true
+}
+```
+
+## Bucket as a Cloudfront origin with Origin access control
+```
+module "s3" {
+  source                   = "./s3"
+  name                     = "my-bucket-unique-name"
+  origin_access_control    = true
 }
 ```
 
