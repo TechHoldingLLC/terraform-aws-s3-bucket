@@ -13,8 +13,16 @@ locals {
   region = "us-west-2"
 }
 
+# Bucket with Origin access identity
 module "s3" {
-  source                   = "../../"
-  name                     = "my-bucket-unique-name"
-  cloudfront_access_policy = true
+  source                 = "../../"
+  name                   = "my-bucket-unique-name"
+  origin_access_identity = true
+}
+
+# Bucket with Origin access control
+module "s3_oac" {
+  source                = "../../"
+  name                  = "my-bucket-unique-name-oac"
+  origin_access_control = true
 }
