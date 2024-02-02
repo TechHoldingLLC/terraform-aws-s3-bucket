@@ -62,3 +62,8 @@ variable "kms_master_key_id" {
   type        = string
   default     = null
 }
+
+variable "lifecycle_rule" {
+  description = "S3 lifecycle rule for objects"
+  default     = []
+}

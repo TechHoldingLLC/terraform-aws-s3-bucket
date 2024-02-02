@@ -3,6 +3,30 @@ resource "aws_s3_bucket" "s3" {
   bucket        = var.name
   force_destroy = var.force_destroy
 
+  dynamic "lifecycle_rule" {
+    for_each = var.lifecycle_rule
+
+    content {
+      enabled                                = lifecycle_rule.value.enabled
+      abort_incomplete_multipart_upload_days = lookup(lifecycle_rule.value, "abort_incomplete_multipart_upload_days", null)
+
+      dynamic "expiration" {
+        for_each = length(keys(lookup(lifecycle_rule.value, "expiration", {}))) == 0 ? [] : [lookup(lifecycle_rule.value, "expiration", {})]
+        content {
+          days = lookup(expiration.value, "days", null)
+        }
+      }
+
+      dynamic "noncurrent_version_expiration" {
+        for_each = length(keys(lookup(lifecycle_rule.value, "noncurrent_version_expiration", {}))) == 0 ? [] : [lookup(lifecycle_rule.value, "noncurrent_version_expiration", {})]
+        content {
+          days = lookup(noncurrent_version_expiration.value, "days", null)
+        }
+      }
+    }
+  }
+
+
   lifecycle {
     prevent_destroy = true
     ignore_changes = [
@@ -19,7 +43,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "encryption" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = var.encryption_algorithm
+      sse_algorithm     = var.encryption_algorithm
       kms_master_key_id = var.encryption_algorithm == "AES256" ? null : var.kms_master_key_id
     }
   }

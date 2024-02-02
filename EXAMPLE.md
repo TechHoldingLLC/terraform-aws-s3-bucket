@@ -71,3 +71,31 @@ module "s3" {
   }
 }
 ```
+
+## Bucket to enable lifecycle rules
+```
+module "s3" {
+  source      = "./s3"
+  name        = "my-unique-bucket-name"
+  versioning  = "Enabled"
+  
+  lifecycle_rule = [
+    {
+      id                                     = "remove-previous-versions"
+      enabled                                = true
+      abort_incomplete_multipart_upload_days = 1
+      expiration = {
+        days                         = 0
+        expired_object_delete_marker = true
+      }
+      noncurrent_version_expiration = {
+        days = 7
+      }
+    }
+  ]
+
+  providers = {
+    aws = aws
+  }
+}
+```
