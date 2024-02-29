@@ -6,9 +6,56 @@ resource "aws_s3_bucket" "s3" {
   lifecycle {
     prevent_destroy = true
     ignore_changes = [
-      policy,
       website
     ]
+  }
+}
+
+## Lifecycle rule configuartion
+resource "aws_s3_bucket_lifecycle_configuration" "s3_lifecycle_configuration" {
+  count  = var.create_lifecycle_rule ? 1 : 0
+  bucket = aws_s3_bucket.s3.id
+
+  rule { # Without this it gives error "At least 1 "rule" blocks are required."
+    id     = "default"
+    status = "Disabled"
+    dynamic "expiration" { # Without this it gives error "At least one action needs to be specified in a rule"
+      for_each = var.lifecycle_rule
+      content {
+        days = lookup(expiration.value, "days", null)
+      }
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.lifecycle_rule
+
+    content {
+      id     = rule.value.id
+      status = rule.value.status
+
+      dynamic "abort_incomplete_multipart_upload" {
+        for_each = length(keys(lookup(rule.value, "abort_incomplete_multipart_upload", {}))) == 0 ? [] : [lookup(rule.value, "abort_incomplete_multipart_upload", {})]
+        content {
+          days_after_initiation = lookup(abort_incomplete_multipart_upload.value, "days_after_initiation", null)
+        }
+      }
+
+      dynamic "expiration" {
+        for_each = length(keys(lookup(rule.value, "expiration", {}))) == 0 ? [] : [lookup(rule.value, "expiration", {})]
+        content {
+          days                         = lookup(expiration.value, "days", null)
+          expired_object_delete_marker = lookup(expiration.value, "expired_object_delete_marker", false)
+        }
+      }
+
+      dynamic "noncurrent_version_expiration" {
+        for_each = length(keys(lookup(rule.value, "noncurrent_version_expiration", {}))) == 0 ? [] : [lookup(rule.value, "noncurrent_version_expiration", {})]
+        content {
+          noncurrent_days = lookup(noncurrent_version_expiration.value, "noncurrent_days", null)
+        }
+      }
+    }
   }
 }
 
@@ -19,7 +66,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "encryption" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = var.encryption_algorithm
+      sse_algorithm     = var.encryption_algorithm
       kms_master_key_id = var.encryption_algorithm == "AES256" ? null : var.kms_master_key_id
     }
   }

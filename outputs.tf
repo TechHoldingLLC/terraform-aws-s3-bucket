@@ -19,5 +19,5 @@ output "bucket_name" {
 }
 
 output "bucket_website_endpoint" {
-  value = aws_s3_bucket.s3.website_endpoint
+  value = length(var.website) > 0 ? aws_s3_bucket_website_configuration.website[0].website_endpoint : null
 }
