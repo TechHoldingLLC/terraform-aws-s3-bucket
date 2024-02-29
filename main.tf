@@ -13,6 +13,7 @@ resource "aws_s3_bucket" "s3" {
 
 ## Lifecycle rule configuartion
 resource "aws_s3_bucket_lifecycle_configuration" "s3_lifecycle_configuration" {
+  count  = var.create_lifecycle_rule ? 1 : 0
   bucket = aws_s3_bucket.s3.id
 
   rule { # Without this it gives error "At least 1 "rule" blocks are required."
