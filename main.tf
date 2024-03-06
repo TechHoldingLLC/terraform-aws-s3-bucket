@@ -4,7 +4,6 @@ resource "aws_s3_bucket" "s3" {
   force_destroy = var.force_destroy
 
   lifecycle {
-    prevent_destroy = true
     ignore_changes = [
       website
     ]
