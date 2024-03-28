@@ -72,3 +72,9 @@ variable "create_lifecycle_rule" {
   description = "Create s3 lifecycle rule"
   default     = false
 }
+
+variable "bucket_key_enabled" {
+  description = "Whether or not to use Amazon S3 Bucket Keys for SSE-KMS"
+  type        = bool
+  default     = true
+}
