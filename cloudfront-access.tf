@@ -73,6 +73,8 @@ resource "aws_s3_bucket_policy" "s3_cloudfront_oac" {
 ## s3 cloudfront policy document for origin access control
 data "aws_iam_policy_document" "s3_cloudfront_oac" {
   count = var.origin_access_control ? 1 : 0
+
+  ## ClourFront OAC
   statement {
     sid    = "AllowCloudfrontToListBucket"
     effect = "Allow"
@@ -126,6 +128,29 @@ data "aws_iam_policy_document" "s3_cloudfront_oac" {
       values = [
         var.cloudfront_arn
       ]
+    }
+  }
+
+  ## Allow only HTTPS requests to bucket
+  statement {
+    sid    = "AllowSSLRequestsOnly"
+    effect = "Deny"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.s3.arn,
+      "${aws_s3_bucket.s3.arn}/*"
+    ]
+
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
     }
   }
 }
