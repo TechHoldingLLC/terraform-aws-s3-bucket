@@ -131,9 +131,9 @@ data "aws_iam_policy_document" "s3_cloudfront_oac" {
     }
   }
 
-  ## Allow only HTTPS requests to bucket
+  ## Deny all HTTP requests
   statement {
-    sid    = "AllowSSLRequestsOnly"
+    sid    = "BlockHTTPRequests"
     effect = "Deny"
 
     principals {
