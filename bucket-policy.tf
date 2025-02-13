@@ -9,7 +9,7 @@ data "aws_iam_policy_document" "combined" {
   count = var.origin_access_control || var.https_enabled || var.bucket_policy != null ? 1 : 0 
 
   source_policy_documents = compact([
-    var.origin_access_control ? data.aws_iam_policy_document.s3_cloudfront[0].json : "",
+    var.origin_access_control ? data.aws_iam_policy_document.s3_cloudfront_oac[0].json : "",
     var.https_enabled ? data.aws_iam_policy_document.https_only[0].json : "",
     var.bucket_policy != null ? var.bucket_policy : ""
   ])
