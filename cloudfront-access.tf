@@ -65,67 +65,99 @@ data "aws_iam_policy_document" "s3_cloudfront_oai" {
 
 ## s3 cloudfront policy for origin access control
 resource "aws_s3_bucket_policy" "s3_cloudfront_oac" {
-  count  = var.origin_access_control ? 1 : 0
+  count  = var.origin_access_control || var.https_enabled ? 1 : 0
   bucket = aws_s3_bucket.s3.id
   policy = data.aws_iam_policy_document.s3_cloudfront_oac[0].json
 }
 
 ## s3 cloudfront policy document for origin access control
 data "aws_iam_policy_document" "s3_cloudfront_oac" {
-  count = var.origin_access_control ? 1 : 0
-  statement {
-    sid    = "AllowCloudfrontToListBucket"
-    effect = "Allow"
+  count = var.origin_access_control || var.https_enabled ? 1 : 0
 
-    principals {
-      type = "Service"
-      identifiers = [
-        "cloudfront.amazonaws.com"
+  dynamic "statement" {
+    for_each = var.origin_access_control ? [1] : []
+    content {
+      sid    = "AllowCloudfrontToListBucket"
+      effect = "Allow"
+
+      principals {
+        type = "Service"
+        identifiers = [
+          "cloudfront.amazonaws.com"
+        ]
+      }
+
+      actions = [
+        "s3:ListBucket"
       ]
-    }
 
-    actions = [
-      "s3:ListBucket"
-    ]
-
-    resources = [
-      aws_s3_bucket.s3.arn
-    ]
-
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values = [
-        var.cloudfront_arn
+      resources = [
+        aws_s3_bucket.s3.arn
       ]
+
+      condition {
+        test     = "StringEquals"
+        variable = "AWS:SourceArn"
+        values = [
+          var.cloudfront_arn
+        ]
+      }
     }
   }
 
-  statement {
-    sid    = "AllowCloudfrontToGetObjects"
-    effect = "Allow"
+  dynamic "statement" {
+    for_each = var.origin_access_control ? [1] : []
+    content {
+      sid    = "AllowCloudfrontToGetObjects"
+      effect = "Allow"
 
-    principals {
-      type = "Service"
-      identifiers = [
-        "cloudfront.amazonaws.com"
+      principals {
+        type = "Service"
+        identifiers = [
+          "cloudfront.amazonaws.com"
+        ]
+      }
+
+      actions = [
+        "s3:GetObject"
       ]
+
+      resources = [
+        "${aws_s3_bucket.s3.arn}/*"
+      ]
+
+      condition {
+        test     = "StringEquals"
+        variable = "AWS:SourceArn"
+        values = [
+          var.cloudfront_arn
+        ]
+      }
     }
+  }
 
-    actions = [
-      "s3:GetObject"
-    ]
+  dynamic "statement" {
+    for_each = var.https_enabled ? [1] : []
+    content {
+      sid    = "BlockHTTPRequests"
+      effect = "Deny"
 
-    resources = [
-      "${aws_s3_bucket.s3.arn}/*"
-    ]
+      principals {
+        type        = "*"
+        identifiers = ["*"]
+      }
 
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values = [
-        var.cloudfront_arn
+      actions = ["s3:*"]
+      resources = [
+        aws_s3_bucket.s3.arn,
+        "${aws_s3_bucket.s3.arn}/*"
       ]
+
+      condition {
+        test     = "Bool"
+        variable = "aws:SecureTransport"
+        values   = ["false"]
+      }
     }
   }
 }

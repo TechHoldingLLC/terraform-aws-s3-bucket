@@ -78,3 +78,9 @@ variable "bucket_key_enabled" {
   type        = bool
   default     = true
 }
+
+variable "https_enabled" {
+  description = "Deny all the HTTP requests in bucket"
+  type        = bool
+  default     = true
+}
