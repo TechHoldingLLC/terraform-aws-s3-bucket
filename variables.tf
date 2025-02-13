@@ -84,3 +84,9 @@ variable "https_enabled" {
   type        = bool
   default     = true
 }
+
+variable "bucket_policy" {
+  description = "Bucket policy"
+  type        = any
+  default     = null
+}
