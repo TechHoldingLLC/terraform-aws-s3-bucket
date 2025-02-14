@@ -1,16 +1,16 @@
 ## s3 cloudfront policy for origin access control
 resource "aws_s3_bucket_policy" "bucket_policy" {
-  count  = var.origin_access_control || var.https_enabled || var.bucket_policy != null ? 1 : 0
+  count  = var.origin_access_control || var.block_http_request || var.bucket_policy != null ? 1 : 0
   bucket = aws_s3_bucket.s3.id
   policy = data.aws_iam_policy_document.combined[0].json
 }
 
 data "aws_iam_policy_document" "combined" {
-  count = var.origin_access_control || var.https_enabled || var.bucket_policy != null ? 1 : 0
+  count = var.origin_access_control || var.block_http_request || var.bucket_policy != null ? 1 : 0
 
   source_policy_documents = compact([
     var.origin_access_control ? data.aws_iam_policy_document.s3_cloudfront_oac[0].json : "",
-    var.https_enabled ? data.aws_iam_policy_document.https_only[0].json : "",
+    var.block_http_request ? data.aws_iam_policy_document.block_http_request[0].json : "",
     var.bucket_policy != null ? var.bucket_policy : ""
   ])
 }
@@ -76,8 +76,8 @@ data "aws_iam_policy_document" "s3_cloudfront_oac" {
 }
 
 #Deny all HTTP Request
-data "aws_iam_policy_document" "https_only" {
-  count = var.https_enabled ? 1 : 0
+data "aws_iam_policy_document" "block_http_request" {
+  count = var.block_http_request ? 1 : 0
 
   statement {
     sid    = "BlockHTTPRequests"
