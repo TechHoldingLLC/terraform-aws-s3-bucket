@@ -1,7 +1,7 @@
 # S3
 Below is an examples of calling this module.
 
-Note: By default, Serverside encryption using "AES256" is enabled in this module
+Note: By default, Serverside encryption using "AES256" and bucket policy of blocking HTTP Request is **enabled** in this module
 
 ## Create S3 bucket
 ```
@@ -20,12 +20,34 @@ module "s3" {
 }
 ```
 
-## Bucket as a Cloudfront origin with Origin access identity
+## Bucket with custom bucket policy
 ```
+data "aws_iam_policy_document" "sample_policy" {
+  statement {
+    sid    = "AllowCloudfrontToGetObject"
+    effect = "Allow"
+
+    principals {
+      type = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    actions = ["s3:GetObject"]
+
+    resources = ["arn:aws:s3:::example-bucket/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = ["arn:aws:cloudfront::123456789012:distribution/ABCDEFG12345"] 
+    }
+  }
+}
+
 module "s3" {
   source                   = "./s3"
   name                     = "my-bucket-unique-name"
-  origin_access_identity   = true
+  bucket_policy            = data.aws_iam_policy_document.sample_policy.json
 }
 ```
 
