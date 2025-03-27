@@ -90,3 +90,9 @@ variable "bucket_policy" {
   type        = any
   default     = null
 }
+
+variable "attach_bucket_policy" {
+  description = "Attach S3 bukcet policy"
+  type        = bool
+  default     = false
+}
