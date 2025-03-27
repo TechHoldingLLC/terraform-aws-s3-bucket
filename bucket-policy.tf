@@ -1,6 +1,6 @@
 ## s3 cloudfront policy for origin access control
 resource "aws_s3_bucket_policy" "bucket_policy" {
-  count = (var.origin_access_control || var.block_http_request || var.bucket_policy != null) ? 1 : 0
+  count = (var.origin_access_control || var.block_http_request || var.attach_bucket_policy) ? 1 : 0
 
   bucket = aws_s3_bucket.s3.id
 
@@ -9,7 +9,7 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
     Statement = concat(
       var.origin_access_control ? jsondecode(data.aws_iam_policy_document.s3_cloudfront_oac[0].json).Statement : [],
       var.block_http_request ? jsondecode(data.aws_iam_policy_document.block_http_request[0].json).Statement : [],
-      var.bucket_policy != null ? jsondecode(var.bucket_policy).Statement : []
+      (var.attach_bucket_policy && var.bucket_policy != null) ? jsondecode(var.bucket_policy).Statement : []
     )
   })
 }

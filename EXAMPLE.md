@@ -47,6 +47,7 @@ data "aws_iam_policy_document" "sample_policy" {
 module "s3" {
   source                   = "./s3"
   name                     = "my-bucket-unique-name"
+  attach_bucket_policy     = true
   bucket_policy            = data.aws_iam_policy_document.sample_policy.json
 }
 ```
